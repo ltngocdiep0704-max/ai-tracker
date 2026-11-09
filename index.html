@@ -31,7 +31,11 @@
             const rows = await res.json();
 
             // Lọc dữ liệu theo tên học sinh (khớp với cột 'Họ và tên' trong Google Sheets)
-            const studentData = rows.filter(r => String(r['Họ và tên']).toLowerCase().includes(inputName));
+            const studentData = rows.filter(r => {
+    // Ghép tất cả các cột lại thành một chuỗi chữ thường để dò tìm
+    const rowString = Object.values(r).join(' ').toLowerCase();
+    return rowString.includes(inputName);
+});
 
             const labels = studentData.map(r => r['Dấu thời gian']);
             const scores = studentData.map(r => r['AID_Index']);

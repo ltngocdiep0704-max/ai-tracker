@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Sổ tay AI - Theo dõi 21 ngày</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50 p-6">
+    <div class="max-w-2xl mx-auto bg-white p-6 rounded-2xl shadow-md">
+        <h1 class="text-xl font-bold text-gray-800 mb-4">Hành trình 21 ngày làm chủ AI</h1>
+        
+        <!-- Ô nhập mã học sinh hoặc họ tên để tra cứu -->
+        <div class="mb-4 flex gap-2">
+            <input type="text" id="studentId" placeholder="Nhập Họ và tên học sinh" class="border p-2 rounded flex-1">
+            <button onclick="loadData()" class="bg-blue-600 text-white px-4 py-2 rounded">Xem biểu đồ</button>
+        </div>
+
+        <!-- Vùng hiển thị biểu đồ -->
+        <canvas id="aiChart"></canvas>
+    </div>
+
+    <script>
+        // Dán URL Google Apps Script Web App của bạn vào trong cặp ngoặc kép dưới đây:
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx8XbNA-wm335VVGvBgqaPFnJ3xaPPY0CqCqit_0FNHG5bxpTRmVDcXHkArCKKU0_7n/exec";
+        let myChart = null;
+
+        async function loadData() {
+            const inputName = document.getElementById('studentId').value.trim().toLowerCase();
+            const res = await fetch(WEB_APP_URL);
+            const rows = await res.json();
+
+            // Lọc dữ liệu theo tên học sinh (khớp với cột 'Họ và tên' trong Google Sheets)
+            const studentData = rows.filter(r => String(r['Họ và tên']).toLowerCase().includes(inputName));
+
+            const labels = studentData.map(r => r['Dấu thời gian']);
+            const scores = studentData.map(r => r['AID_Index']);
+
+            const ctx = document.getElementById('aiChart').getContext('2d');
+            if (myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Chỉ số phụ thuộc AI (AID Index)',
+                        data: scores,
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                }
+            });
+        }
+    </script>
+</body>
+</html>
